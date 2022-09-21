@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+  <!-- Head -->
+  <head>
+
+    <title>ממשק מורה</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="TeacherInteface.css" />
+  </head>
+  <!-- Body -->
+  <body>
+    <div class="loader" id="loader"></div>
+    <!-- Main Container -->
+    <div class="container" id="container">
+      <div class="h-100 d-flex align-items-center justify-content-center" id="main">
+        <div class="row">
+          <button type="button" class="btn btn-primary" id="go-back"  onclick="document.location.href = '../index.html'">חזור לפלטפורמה</button>&ensp;
+          </button>
+      <!-- Game Options -->
+      <div class="row" >
+        <p>
+        <form autocomplete="off">
+          <div class="autocomplete" style="width: 200px">
+            <input id="load-game-input" type="text" name="myCountry" placeholder="חפש משחק" />&ensp;
+          </div>
+       
+          <button type="button" class="btn btn-primary" id="load-game-btn" onclick="loadSelectedGame()">טען משחק</button>&ensp;
+          <button type="button" class="btn btn-primary" id="new-game-btn" onclick="openNewGame()">הוסף משחק</button>
+          </p>
+        </form>
+      </div>
+
+
+
+      <!-- Game Iframe -->
+      <div class="row" id="row-iframe">
+        <iframe id="game-iframe" src="" title="Game"></iframe>
+      </div>
+      <!-- Configuration Options -->
+      <div class="row">
+        <form autocomplete="off">
+          <div class="autocomplete" style="width: 200px">
+            <input type="text" placeholder="חפש קונפיגורציה" id="load-config-input" onkeyup="" />
+          </div>
+          <button type="button" class="btn btn-primary" id="load-config-btn" onclick="loadSelectedConfig()">טען קונפיגורציה</button>
+          <button type="button" class="btn btn-primary" id="save-config-btn" onclick="openNewConfig()">הוסף קונפיגורציה</button>
+        </form>
+      </div>
+
+      <!-- Question Options -->
+      <p></p>
+      <div class="row">
+        <button type="button" class="btn btn-light" id="next-question" onclick="togglelQuestions('right')">
+          <i class="arrow right"></i>
+        </button>
+        <h id="question-number">שאלה 1</h>
+        <button type="button" class="btn btn-light" id="prev-question" onclick="togglelQuestions('left')">
+          <i class="arrow left"></i>
+        </button>
+        &ensp;
+        מזהה שאלה: &ensp;
+        <input type="text" placeholder="" id="question-id" disabled style="width: 10%;"/>
+      </div>
+      <p></p>
+      <div class="row">
+        <p></p>
+        <form autocomplete="off">
+          <div class="autocomplete" style="width: 200px">
+            <input type="text" placeholder="חפש שאלה" id="search-question" onkeyup="" />
+          </div>
+
+          <button type="button" class="btn btn-light" id="toggle-question-form" onclick="toggleQuestionForm()">
+            <i class="arrow down"></i>
+          </button>
+          <button type="button" class="btn btn-primary" id="new-question"> צור שאלה חדשה</button>&ensp;
+          
+          <button type="button" class="btn btn-primary" id="list-question-db">שאלות מהמאגר</button>&ensp;
+          <!-- <button type="button" class="btn btn-primary" id="load-question">טען שאלה</button> -->
+          <p></p>
+
+
+        </div>
+
+        </form>
+
+      <!-- Question Form -->
+      <div class="row" id="question-form">
+        <p></p>
+        <div class="row">
+          סוג שאלה:&emsp;&emsp;
+          <input type="text" placeholder="סוג שאלה" id="question-type" />
+        </div>
+        <p></p>
+        <!-- <div class="row">
+          <input type="text" placeholder="משוב שאלה" id="question-feedback" />
+        </div> -->
+        <div class="row">
+          שאלה נוכחית:&ensp;
+          <input type="text" placeholder="שאלה נוכחית" id="current-question" />
+        </div>
+        <p></p>
+        <div class="row">
+          תשובה 1:&ensp;
+          <input type="checkbox" id="answer-1-checkbox" />&ensp;
+          <input type="text" placeholder="תשובה ראשונה" id="answer-1" />&ensp;
+         משוב תשובה 1:&ensp;
+          <input type="text" placeholder="משוב תשובה" id="q-fdbk"/>
+        </div>
+        <p></p>
+        <div class="row">
+          תשובה 2:&ensp;
+          <input type="checkbox" id="answer-2-checkbox" />&ensp;
+          <input type="text" placeholder="תשובה שניה" id="answer-2" />&ensp;
+          משוב תשובה 2:&ensp;
+           <input type="text" placeholder="משוב תשובה" id="q-fdbk"/>
+          
+        </div>
+        <p></p>
+        <div class="row">
+          תשובה 3:&ensp;
+          <input type="checkbox" id="answer-3-checkbox" />&ensp;
+          <input type="text" placeholder="תשובה שלישית" id="answer-3" />&ensp;
+          משוב תשובה 3:&ensp;
+           <input type="text" placeholder="משוב תשובה" id="q-fdbk"/>
+        </div>
+        <p></p>
+        <div class="row">
+          תשובה 4:&ensp;
+          <input type="checkbox" id="answer-4-checkbox" />&ensp;
+          <input type="text" placeholder="תשובה רביעית" id="answer-4" />&ensp;
+          משוב תשובה 4:&ensp;
+           <input type="text" placeholder="משוב תשובה" id="q-fdbk"/>
+        </div>
+        <p></p>
+        <div class="row">
+          שלב:&ensp;
+          <input type="text" placeholder="שלב" id="current-level" disabled />
+          &ensp;
+          <button type="button" class="btn btn-light" id="dec-level">
+            <i class="arrow up"></i>
+          </button>
+          &ensp;
+          <button type="button" class="btn btn-light" id="inc-level">
+            <i class="arrow down"></i>
+          </button>
+          &emsp;
+          &emsp;
+          משקל:&ensp;
+          <input type="text" placeholder="משקל" id="current-weight" disabled />
+          &ensp;
+          <button type="button" class="btn btn-light" id="dec-weight">
+            <i class="arrow up"></i>
+          </button>
+          &ensp;
+          <button type="button" class="btn btn-light" id="inc-weight">
+            <i class="arrow down"></i>
+          </button>
+        </div>
+        <p></p>
+        <div class="row">
+          שימוש חוזר: &ensp;   
+            <label class="switch">
+              <input type="checkbox" id="checkbox-reuse" />
+              <span class="slider round"></span>
+            </label>
+        </div>
+        <p></p>
+        <div class="row">
+           מסלול: &ensp;
+          <input type="text" placeholder="מסלול מיומנות" id="current-skill-path" />
+          &emsp;
+          מיומנות: &ensp;
+          <input type="text" placeholder="מיומנות" id="current-skill" />
+        </div>
+        <p>
+        <div class="row">
+          <button type="button" class="btn btn-primary" id="delete-question-conf" onclick="deleteQuestionConf()">מחק מקונפיגורציה</button>&ensp;
+          <button type="button" class="btn btn-primary" id="revert-question" onclick="newQuestionForm()">בטל</button>&ensp;
+          <button type="button" class="btn btn-primary" id="save-question-conf" onclick="saveQuestionForm()">שמור</button>&ensp;
+        </div>
+        </p>
+        <div class="row">
+          <button type="button" class="btn btn-danger" id="delete-question-db">מחק ממאגר השאלות</button>&ensp;
+          <!-- <button type="button" class="btn btn-primary" id="save-question-db">שמור במאגר השאלות</button> -->
+        </div>
+        <div></div>
+      </div>
+  </div>
+</div>
+                <!-- approve delete outside modal -->
+                <div id="delq-outside-form" class="delq_outside_modal">
+                  <div class="modal-content" id="delq_modal-content">
+                  <div id="deleteq-outside-approve">
+                    <p>
+                      האם אתה בטוח שברצונך למחוק שאלה זו?
+                    </p>
+                  
+                    <button type="button" class="btn btn-danger" id="rmq-outside-appr">אישור</button>
+                    <button type="button" class="btn btn-primary" id="rmq-outside-cancel">בטל</button>
+                  </div>
+                </div> 
+                </div> 
+
+                <!-- modal for adding new config -->
+                <div id="addnew-config" class="addnew-config-modal">
+                  <!-- Modal content -->
+                  <div class="modal-content-newconfig">
+                          <!-- New Configuration Form -->
+                      <div class="row" id="new-config">
+                        <p>
+                        <div class="row">
+                          <input type="text" placeholder="שם קונפיגורציה" id="new-config-name" onkeyup="" />
+                        </div>
+                      </p>
+                        <div class="row">
+                          <button type="button" class="btn btn-primary" id="revert-new-config" onclick="closeNewConfig()">בטל</button>
+                          <button type="button" class="btn btn-primary" id="save-new-config" onclick="saveNewConfig()">שמור קונפיגורציה</button>
+                        </div>
+                      </div>
+                     
+                    </div>
+                  </div>
+
+
+                <!-- modal for adding new game -->
+                <div id="addnew-game" class="addnew-game-modal">
+                  <!-- Modal content -->
+                  <div class="modal-content-newgame">
+                          <!-- New Game Form -->
+                          <p>
+                          <div class="row">
+                            <input type="text" placeholder="שם המשחק" id="new-game-name" onkeyup="" />
+                          </div>
+                        </p>
+                        <p>
+                          <div class="row">
+                            <input type="text" placeholder="קישור למשחק" id="new-game-url" onkeyup="" />
+                          </div>
+                        </p>
+                        <p>
+                          <div class="row">
+                            <input type="text" placeholder="תיאור המשחק" id="new-game-description" onkeyup="" />
+                          </div>
+                        </p>
+                        <p>
+                          <div class="row">
+                            <input type="text" placeholder="קישור תמונה למשחק" id="new-game-img" onkeyup="" />
+                          </div>
+                        </p>
+                      <div class="row">
+                      <button type="button" class="btn btn-primary" onclick="saveNewGame()">הוסף</button>&ensp;
+                      <button type="button" class="btn btn-primary" onclick="closeNewGame()" >בטל</button>
+                      </div>
+                    </div>
+                  </div>
+                <!-- modal for adding new question -->
+                <div id="addnewq" class="addnewq-modal">
+                  <!-- Modal content -->
+                  <div class="modal-content">
+                    <!-- <span class="close" id="addnewq-close-btn">&times;</span><br> -->
+                    <p></p>
+                    <div class="row"></div>
+                    <p></p>
+                    
+                      <!-- <p>סוג שאלה</p> -->
+                      <div class="row">
+                        <input type="text" placeholder="שאלה" id="addnewq-question" />
+                      </div>
+                      <p></p>
+                      תשובות:
+                      <p></p>
+                      <div id="addnewqDB-answers">
+                        <div class="row">
+                          <input type="checkbox"/>&ensp;
+                          <input type="text" placeholder="תשובה ראשונה" />&ensp;
+                          <input type="text" placeholder="משוב שאלה" id="newq-fdbk"/>
+                        </div>
+                        <p></p>
+                        <div class="row">
+                          <input type="checkbox"/>&ensp;
+                          <input type="text" placeholder="תשובה שניה" />&ensp;
+                          <input type="text" placeholder="משוב שאלה" id="newq-fdbk"/>
+                        </div>
+                        <p></p>
+                        <div class="row">
+                          <input type="checkbox"/>&ensp;
+                          <input type="text" placeholder="תשובה שלישית"/>&ensp;
+                          <input type="text" placeholder="משוב שאלה" id="newq-fdbk"/>
+                        </div>
+                        <p></p>
+                        <div class="row">
+                          <input type="checkbox"/>&ensp;
+                          <input type="text" placeholder="תשובה רביעית"/>&ensp;
+                          <input type="text" placeholder="משוב שאלה" id="newq-fdbk"/>
+                        </div>
+                    </div>
+                      <p></p>
+                      <div class="row">
+                        <input type="text" placeholder="סוג שאלה" id="addnewq-type"/>
+                      </div>
+                      <p></p>
+        
+        
+                      <p></p>
+                    
+                      הוספת השאלה החדשה לקובץ הקונפגרציה הנוכחי?
+                      <label class="switch">
+                        <input type="checkbox" id="checkbox-addnewq-currconf" />
+                        <span class="slider round"></span>
+                      </label>
+                      <div id="addnewq-config" style="display: none">
+                        <p>
+                        שלב: &ensp;
+                        <input type="text" placeholder="בחר שלב" />
+                        </p>
+                        <p>
+                          סדר: &ensp;
+                        <input type="text" placeholder="בחר סדר"/>
+                        &ensp;
+                        משקל: &ensp;
+                        <input type="text" placeholder="בחר משקל"/>
+                    
+                        </p>
+                        <p>
+                          שימוש חוזר:&ensp;
+                          <label class="switch">
+                            <input type="checkbox" id="addnewq-checkbox-reuse" />
+                          <span class="slider round"></span>
+                          </label> 
+                        </p>
+                        <p>
+                          מסלול מיומנות:&ensp;
+                        <input type="text" placeholder="בחר מסלול מיומנות"/>
+                        &ensp;
+                        מיומנות:&ensp;
+                        <input type="text" placeholder="בחר מיומנות"/>
+                        </p>
+               
+                      </div>
+                      <div class="row">
+                      <button type="button" class="btn btn-primary" id="addnewq-add" >הוסף</button>&ensp;
+                      <button type="button" class="btn btn-primary" id="addnewq-cancel">בטל</button>
+                      </div>
+                    </div>
+                  </div>
+                          <!-- Question DB Modal -->
+                          <div id="list-q" class="modal">
+                            <!-- Question DB Modal content -->
+                            <div class="modal-content">          
+                              <span class="close" id="close-btn">&times;</span>
+                              <section>
+                                <div class="tbl-header">
+                                  <table cellpadding="0" cellspacing="0" border="0">
+                                    <thead>
+                                      <tr>
+                                        <th>שאלה</th>  
+                                        <th>מזהה שאלה</th>  
+                                        <th>סוג שאלה</th>
+                                        <th>הוספה לקונפגרציה הנוכחית</th>
+                                        <th>מחיקה ממאגר השאלות</th>
+                                      </tr>
+                                    </thead>
+                                  </table>
+                                </div>
+                                <div class="tbl-content">  
+                                    <!-- approve delete from modal -->
+                                    <div id="delq-form" class="delq_modal">
+                                      <div class="del-modal-content" id="delq_modal-content">
+                                      <div id="deleteq-approve">
+                                        <p>
+                                          האם אתה בטוח שברצונך למחוק שאלה זו?
+                                        </p>
+                                     
+                                        <button type="button" class="btn btn-danger" id="rmq-appr">אישור</button>
+                                        <button type="button" class="btn btn-primary" id="rmq-cancel">בטל</button>
+                                      </div>
+                                    </div> 
+                                    </div> 
+
+
+                                  <div id="addq-form" class="addq_modal">
+                                    <div class="modal-content" id="addq_modal-content">
+                                      <div id="addq-inputs">
+                                        <p>
+                                          מזהה שאלה: &ensp;
+                                        <input type="text"  id="addq_modal-qid" placeholder="מזהה שאלה" disabled />
+                                        &ensp;
+                                        שלב: &ensp;
+                                        <input type="text" placeholder="בחר שלב" />
+                                        </p>
+                                        <p>
+                                          סדר: &ensp;
+                                        <input type="text" placeholder="בחר סדר"/>
+                                        &ensp;
+                                        משקל: &ensp;
+                                        <input type="text" placeholder="בחר משקל"/>
+                                        </p>
+                                        <p>
+                                          שימוש חוזר:&ensp;
+                                          <label class="switch">
+                                            <input type="checkbox" id="addq-checkbox-reuse" />
+                                          <span class="slider round"></span>
+                                          </label> 
+                                        </p>
+                                        <p>
+                                          מסלול מיומנות:&ensp;
+                                        <input type="text" placeholder="בחר מסלול מיומנות"/>
+                                        &ensp;
+                                        מיומנות:&ensp;
+                                        <input type="text" placeholder="בחר מיומנות"/>
+                                        </p>
+              
+                                      </div>
+                                      <button type="button" class="btn btn-primary" id="addq-add" >הוסף</button>
+                                      <button type="button" class="btn btn-primary" id="addq-cancel">בטל</button>
+                                    </div>
+
+                                </div> 
+                                  <table cellpadding="0" cellspacing="0" border="0">
+                                    <tbody>
+              
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </section>
+                              <!-- <button type="button" class="btn btn-primary" id="addnewq-add" >הוסף שאלה חדשה למאגר</button> -->
+                            </div>
+                          </div>
+</body>
+ 
+  <script src="TeacherInterface.js"></script>
+</html>
