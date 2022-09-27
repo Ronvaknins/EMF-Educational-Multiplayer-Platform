@@ -6,7 +6,7 @@ var qids,questions,answers,qtype,qlevel,correct_answers,qweight,qpath,qpath,qski
 var games_list;
 var Addqconfig_btn;
 var modal_addqconfig;
-var QTYPES = ['בחירה יחידה','בחירה מרובה'];
+var QTYPES = ["בחירה יחידה","בחירה מרובה"];
 //db url - google-sheet
 var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY3GajaWNOH3IifV7AC95-EXkmSo1ObW4YINsWqg/exec";
 
@@ -375,6 +375,22 @@ document.getElementById("close-btn").onclick = function() {
 //wirte the changes to all db - add it to the current config and qa-db sheet
 document.getElementById('save-question-conf').onclick = async function(e) {
   loader('ON');
+  let inputFlag = false;
+  let cntCorrect = 0;
+  await document.getElementById("question-form-inputs").querySelectorAll('input[type="text"]').forEach((input) => { 
+    if(input.value == "") { inputFlag = true; }
+  })
+  await document.getElementById("question-form-inputs").querySelectorAll('input[type="checkbox"]').forEach((checkbox) => { 
+    if(checkbox.checked) { cntCorrect++; }
+  })
+  if(inputFlag){ alert("כל השדות חייבים להיות מלאים"); loader("OFF"); return; }
+  if(!QTYPES.includes(document.getElementById("question-type").value)){ alert("סוג השאלה חייב להיות 'בחירה יחידה' או 'בחירה מרובה'"); loader("OFF"); return; }
+  if(cntCorrect === 0) { alert("נא לסמן לפחות תשובה אחת נכונה"); loader('OFF'); return; }
+  if (document.getElementById("question-type").value == QTYPES[0] && cntCorrect != 1) {
+    alert("בשאלות מסוג בחירה יחידה ניתן לסמן תשובה אחת בלבד");
+    loader("OFF");
+    return;
+  }
   var questionNumber = document.getElementById("question-number").value;
   var current_config = document.getElementById("load-config-input").value;
   var questionId = document.getElementById("question-id").value;
@@ -395,7 +411,6 @@ document.getElementById('save-question-conf').onclick = async function(e) {
       correctAnswersIndexs.push(i-1);
     }
   }
-  if(correctAnswersIndexs.length === 0){alert("נא לסמן לפחות תשובה אחת נכונה");loader('OFF');return;}
   var currentLevel = document.getElementById("current-level").value;
   var currentWeight = document.getElementById("current-weight").value;
   var checkboxReuse = document.getElementById("checkbox-reuse").checked ? true : false;
@@ -481,14 +496,28 @@ document.getElementById("checkbox-addnewq-currconf").onclick = async function(e)
 //saving the new question to the qa-db and also to current config db sheet if save to current config is checked
 document.getElementById("addnewq-add").onclick = async function(e){
   loader("ON");
+  let inputFlag = false;
+  await document.getElementById("addnewqDB-answers").querySelectorAll('input[type="text"]').forEach((input) => { 
+    if(input.value == "") { inputFlag = true; }
+  })
+  if (document.getElementById("addnewq-question").value == "" || document.getElementById("addnewq-type").value == "" || inputFlag){ 
+    alert("כל השדות חייבים להיות מלאים"); loader("OFF"); return; }
+  if(!QTYPES.includes(document.getElementById("addnewq-type").value)){ alert("סוג השאלה חייב להיות 'בחירה יחידה' או 'בחירה מרובה'"); loader("OFF"); return; }
   let addnewqDBanswers = [];
   let addnewqDBcorrect = [];
   let addnewqDBfdbk = [];
+  let cntDBcorrect = 0;
   let new_question = document.getElementById("addnewq-question").value;
   await document.getElementById("addnewqDB-answers").querySelectorAll('input[type="checkbox"]').forEach((input) => { 
     addnewqDBcorrect.push(input.checked);
+    input.checked ? cntDBcorrect++ : cntDBcorrect = cntDBcorrect;
   })
-  if(addnewqDBcorrect.every(element => element === false)){alert("נא לסמן לפחות תשובה אחת נכונה");loader("OFF");return;}
+  if(cntDBcorrect == 0){alert("נא לסמן לפחות תשובה אחת נכונה");loader("OFF");return;}
+  if (document.getElementById("addnewq-type").value == QTYPES[0] && cntDBcorrect != 1) {
+    alert("בשאלות מסוג בחירה יחידה ניתן לסמן תשובה אחת בלבד");
+    loader("OFF");
+    return;
+  }
   await document.getElementById("addnewqDB-answers").querySelectorAll("input").forEach((input) => { 
     if(input.type == "checkbox"){
       input.checked = false;
