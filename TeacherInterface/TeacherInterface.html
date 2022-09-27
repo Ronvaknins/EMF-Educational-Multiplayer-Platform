@@ -54,31 +54,13 @@
         </form>
       </div>
 
-      <!-- Question Options -->
-      <p></p>
-      <div class="row">
-        <button type="button" class="btn btn-light" id="next-question" onclick="togglelQuestions('right')">
-          <i class="arrow right"></i>
-        </button>
-        <h id="question-number">שאלה 1</h>
-        <button type="button" class="btn btn-light" id="prev-question" onclick="togglelQuestions('left')">
-          <i class="arrow left"></i>
-        </button>
-        &ensp;
-        מזהה שאלה: &ensp;
-        <input type="text" placeholder="" id="question-id" disabled style="width: 10%;"/>
-      </div>
-      <p></p>
       <div class="row">
         <p></p>
-        <form autocomplete="off">
-          <div class="autocomplete" style="width: 200px">
-            <input type="text" placeholder="חפש שאלה" id="search-question" onkeyup="" />
-          </div>
 
-          <button type="button" class="btn btn-light" id="toggle-question-form" onclick="toggleQuestionForm()">
-            <i class="arrow down"></i>
-          </button>
+      
+          <!-- <input type="text" placeholder="חפש שאלה" id="search-question" onkeyup="" /> -->
+
+          <button type="button" class="btn btn-primary" id="toggle-question-form" onclick="toggleQuestionForm()">שאלות מהקונפיגורציה</button>
           <button type="button" class="btn btn-primary" id="new-question"> צור שאלה חדשה</button>&ensp;
           
           <button type="button" class="btn btn-primary" id="list-question-db">שאלות מהמאגר</button>&ensp;
@@ -88,10 +70,25 @@
 
         </div>
 
-        </form>
+
 
       <!-- Question Form -->
       <div class="row" id="question-form">
+          <!-- Question Options -->
+        <p></p>
+        <div class="row">
+          <button type="button" class="btn btn-light" id="next-question" onclick="togglelQuestions('right')">
+            <i class="arrow right"></i>
+          </button>
+          <h id="question-number">שאלה 1</h>
+          <button type="button" class="btn btn-light" id="prev-question" onclick="togglelQuestions('left')">
+            <i class="arrow left"></i>
+          </button>
+          &ensp;
+          מזהה שאלה: &ensp;
+          <input type="text" placeholder="" id="question-id" disabled style="width: 10%;"/>
+        </div>
+  
         <p></p>
         <div class="row">
           סוג שאלה:&emsp;&emsp;

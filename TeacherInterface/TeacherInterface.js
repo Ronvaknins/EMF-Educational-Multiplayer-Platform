@@ -196,7 +196,7 @@ async function loadSelectedConfig() {
       }
   // first create array of QuestionConfig, then array of Question and finally the Configuration.
   await fillQuestionForm(0);
-  await autocomplete(document.getElementById("search-question"), questions); 
+  //await autocomplete(document.getElementById("search-question"), questions); 
   //currentConfig = new Configuration(questions);
   document.getElementById("question-form").style.display = "block";
   loader('OFF');
