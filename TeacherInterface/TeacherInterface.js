@@ -6,7 +6,7 @@ var qids,questions,answers,qtype,qlevel,correct_answers,qweight,qpath,qpath,qski
 var games_list;
 var Addqconfig_btn;
 var modal_addqconfig;
-
+var QTYPES = ['בחירה יחידה','בחירה מרובה'];
 //db url - google-sheet
 var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY3GajaWNOH3IifV7AC95-EXkmSo1ObW4YINsWqg/exec";
 
@@ -18,8 +18,11 @@ var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY
   loader('ON');
   await loadGames();//load games from db
   configurations = await httpGet(url,"getConfigsName");//get all configs name's return: array
+ 
   // // start auto completes
   autocomplete(document.getElementById("load-config-input"), configurations);
+  await autocomplete(document.getElementById("addnewq-type"),QTYPES);
+  await autocomplete(document.getElementById("question-type"),QTYPES);
   loader('OFF');
 
 })()
