@@ -127,15 +127,22 @@ window.onload = async () => {
 
 async function mplayer(){
   loader("ON");
+  document.getElementById('brand-logo').style.display = "none";
   document.getElementById('game-start').innerHTML = "";
   document.getElementById('game-start').style.display = "none";
+
   await pull_games();
   document.getElementById('games').style.display = 'block';
+
   loader("OFF");
 }
 function home(){
   loader("ON");
   document.getElementById('games').style.display = 'none';
+  document.getElementById('games').innerHTML = "";
+  document.getElementById('game-start').innerHTML = "";
+  document.getElementById('game-start').style.display = "none";
+  document.getElementById('brand-logo').style.display = "block";
   loader("OFF");
 }
 

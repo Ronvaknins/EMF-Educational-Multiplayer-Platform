@@ -1,26 +1,32 @@
 
 
+//global variables
 var data = new Map();
 var qids,questions,answers,qtype,qlevel,correct_answers,qweight,qpath,qpath,qskill,qresused,allquestions,configurations,fdbk_qadb;
 var games_list;
+var Addqconfig_btn;
+var modal_addqconfig;
 
+//db url - google-sheet
 var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY3GajaWNOH3IifV7AC95-EXkmSo1ObW4YINsWqg/exec";
 
 
 
-//const currentConfig = null;
+//init - loading games and autocomplete's - run window load.
 (async () => {
 
   loader('ON');
-  await loadGames();
+  await loadGames();//load games from db
   configurations = await httpGet(url,"getConfigsName");//get all configs name's return: array
   // // start auto completes
   autocomplete(document.getElementById("load-config-input"), configurations);
   loader('OFF');
+
 })()
 
+// *** helpers functions: ***
 
-
+//sending HTTP REQUESET
 async function httpGet(surl,p1,p2,p3) {
   var data = {'param1': p1, 'param2': p2,'param3': p3};
   var url = new URL(surl);
@@ -30,7 +36,7 @@ async function httpGet(surl,p1,p2,p3) {
   return req;
 }
 
-
+//Autocomplete
 function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
@@ -134,22 +140,7 @@ function autocomplete(inp, arr) {
   });
 }
 
-function loadSelectedGame() {
-  loader('ON');
-  var game = document.getElementById("load-game-input");
-  if(!games_list.includes(game.value))
-  {
-    alert("המשחק שנבחר לא קיים במאגר");
-    game.value = "";
-    loader('OFF');
-    return;
-  }
-  var iframe = document.getElementById("game-iframe");
-  // iframe.src = data.get(game.value);
-  iframe.src = data.get(game.value);
-  loader('OFF');
-}
-
+//loading the selected config
 async function loadSelectedConfig() {
   loader('ON');
   let qheb = "שאלה"+" "+1;
@@ -205,29 +196,18 @@ async function loadSelectedConfig() {
       }
   // first create array of QuestionConfig, then array of Question and finally the Configuration.
   await fillQuestionForm(0);
-  await autocomplete(document.getElementById("search-question"), questions);
-  
+  await autocomplete(document.getElementById("search-question"), questions); 
   //currentConfig = new Configuration(questions);
-  
   document.getElementById("question-form").style.display = "block";
   loader('OFF');
 }
 
-function toggleQuestionForm() {
-  let element = document.getElementById("question-form");
-  if (element.style.display == "none" || !element.style.display) {
-    element.style.display = "block";
-  } else {
-    element.style.display = "none";
-  }
-}
+//fill question form in the main page - get: question index
 function fillQuestionForm(index){
   answers[index].forEach((ans,i) =>{
     var qnum = "answer-"+(i+1);
     document.getElementById(qnum).value = ans;
     document.getElementById(qnum+"-checkbox").checked = correct_answers[index][i] ? true : false;
-    
-
   })
   document.querySelectorAll('#q-fdbk').forEach((f,i) =>{
     f.value = fdbk_qadb[index][i];
@@ -243,9 +223,10 @@ function fillQuestionForm(index){
   document.getElementById("checkbox-reuse").checked = qresused[index] ? true : false;
   // document.getElementById("question-type").value = fdbk[index];
 }
+
+//toggle bettwen questions from the seleceted config
 function togglelQuestions(arrow)
 {
-
   if(document.getElementById("load-config-input").value == ""){
     alert("אנא בחר קונפגרציה");
     return;
@@ -269,45 +250,88 @@ function togglelQuestions(arrow)
   document.getElementById("question-number").innerHTML = qheb;
   
 }
-function openNewConfig() {
-  document.getElementById("new-config-name").value = "";
-  document.getElementById("addnew-config").style.display = "block";
+
+//getting the games list fromt the game-db sheet
+async function loadGames()
+{
+  let games = await httpGet(url,"getDataFromsheet","games-db");//get all sheet data (excluding the header) return: map containting the raws fromt the selected sheet
+  games_list = [];
+  games.forEach((game) => {
+    games_list.push(game.game_name);
+    data.set(game.game_name,game.url);
+  });
+  autocomplete(document.getElementById("load-game-input"), games_list);
 }
 
-function closeNewConfig() {
-  document.getElementById("addnew-config").style.display = "none";
-}
 
-async function saveNewConfig() {
+//loading all questions from the qa-db sheet
+async function getAllquestionsDB()
+{
   loader('ON');
-  let name = document.getElementById("new-config-name").value;
-  if(name === "")
-  {
-    alert("שם קונפגרציה לא יכול להיות ריק");
+  const qa_data = await httpGet(url,"getDataFromsheet","qa-db");//get all sheet data (excluding the header) return: map containting the raws fromt the selected sheet
+  qa_data.forEach((val) =>{
+    if(val.question != ''){
+      document.querySelector('tbody').insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>`+val.question+`</td>
+          <td>`+val.qid+`</td>
+          <td>`+val.type+`</td>
+          <td>
+          <button type="button" class="btn btn-default btn-sm" id="addqconfig" value="`+val.qid+`" title="הוסף לקונפגרציה הנוכחית">
+          <span class="glyphicon glyphicon-plus"></span></button>
+          </td>
+          <td><button type="button" class="btn btn-danger" id="delete-question-db-modal" value="`+val.qid+`">מחק</button>&ensp;</td>
+        </tr>`);
+    }   
+  })
 
-    loader('OFF');
-    return;
-  }
-  configurations = await httpGet(url,"getConfigsName");//get all configs name's return: array
-  if(configurations.includes(name))
-  {
-    alert("שם קונפגרציה קיים במאגר, אנא בחר שם אחר");
-    closeNewConfig();
-    loader('OFF');
-    return;
-  }
-  // create new sheet in database for configuration
-  let add_conf = await httpGet(url,"addConfig",name);//add a new config
-  configurations = await httpGet(url,"getConfigsName");
-  autocomplete(document.getElementById("load-config-input"), configurations);
-  closeNewConfig();
+  Addqconfig_btns = await document.querySelectorAll("#addqconfig");
+  modal_addqconfig = await document.getElementById("addq-form");
+  await Addqconfig_btns.forEach((b) =>{
+    b.onclick= async function(e) {
+      loader('ON');
+      let curr_config = await document.getElementById("load-config-input").value;
+      if(curr_config == ""){
+        alert("אנא בחר קונפגרציה");
+        modal.style.display = "none";
+        loader('OFF');
+        return;
+      }
+      document.getElementById("addq_modal-qid").value = await e.srcElement.value;
+      modal_addqconfig.style.display = "block";
+      loader('OFF');
+    }
+
+  })
+  await document.querySelectorAll('#delete-question-db-modal').forEach((b) =>{
+    b.onclick = async function(e)
+    {
+      document.getElementById('rmq-appr').value = await b.value;
+      document.getElementById('delq-form').style.display = "block";
+      loader('OFF');
+    }
+    
+  })
   loader('OFF');
 }
-
-function openNewGame() {
-  document.getElementById("addnew-game").style.display = "block";
+//loader animation
+function loader(state)
+{
+  if(state === 'ON'){
+    document.getElementById('loader').style.visibility = 'visible';
+    document.getElementById('main').style.filter="blur(3px)";
+  }
+  else if(state === "OFF")
+  {
+    document.getElementById('loader').style.visibility = 'hidden';
+    document.getElementById('main').style.filter="blur(0px)";
+  }
 }
 
+
+// **** buttons onclick function: ****
+
+//close new game modal and reset all fields
 function closeNewGame() {
   document.getElementById("new-game-name").value = "";
   document.getElementById("new-game-url").value = "";
@@ -316,6 +340,7 @@ function closeNewGame() {
   document.getElementById("addnew-game").style.display = "none";
 }
 
+//save new game - send all fields data to the games-db sheet
 async function saveNewGame() {
   loader('ON');
   let queryString_newGame = [];
@@ -330,56 +355,26 @@ async function saveNewGame() {
   closeNewGame();
   loader('OFF');
 }
-async function deleteQuestionConf()
-{
-  loader("ON");
-  let q_delete = document.getElementById("question-id").value;
-  let currConf = document.getElementById("load-config-input").value;
-  let delete_fromcf = await httpGet(url,"deleteFromConfig",currConf,q_delete);//delete from config configname,qid to remove
-  loadSelectedConfig();
+
+
+// qa-db questions modal handle:
+// When the user clicks on the button, open the modal
+document.getElementById("list-question-db").onclick = function() {
+  document.getElementById("list-q").style.display = "block";
+  getAllquestionsDB();
+}
+// When the user clicks on <span> (x), close the modal
+document.getElementById("close-btn").onclick = function() {
+  document.getElementById("list-q").style.display = "none";
+  document.querySelector('tbody').innerHTML = "";
 }
 
-//empty all fields of question form
-function newQuestionForm() {
-  document.getElementById("question-number").value = "";
-  document.getElementById("question-id").value = "";
-  document.getElementById("current-question").value = "";
-  document.getElementById("question-type").value = "";
-  // document.getElementById("question-feedback").value = "";
-  document.getElementById("answer-1-checkbox").checked = false;
-  document.getElementById("answer-2-checkbox").checked = false;
-  document.getElementById("answer-3-checkbox").checked = false;
-  document.getElementById("answer-4-checkbox").checked = false;
-  document.getElementById("answer-1").value = "";
-  document.getElementById("answer-2").value = "";
-  document.getElementById("answer-3").value = "";
-  document.getElementById("answer-4").value = "";
-  document.getElementById("current-level").value = "";
-  document.getElementById("current-weight").value = "";
-  document.getElementById("checkbox-reuse").checked = false;
-  document.getElementById("current-skill-path").value = "";
-  document.getElementById("current-skill").value = "";
-  document.getElementById("load-config-input").value = "";
-  toggleQuestionForm();
-
-}
-async function loadGames()
-{
-  
-  let games = await httpGet(url,"getDataFromsheet","games-db");//get all sheet data (excluding the header) return: map containting the raws fromt the selected sheet
-  games_list = [];
-  games.forEach((game) => {
-    games_list.push(game.game_name);
-    data.set(game.game_name,game.url);
-  });
-  autocomplete(document.getElementById("load-game-input"), games_list);
-}
-async function saveQuestionForm() {
+//wirte the changes to all db - add it to the current config and qa-db sheet
+document.getElementById('save-question-conf').onclick = async function(e) {
   loader('ON');
   var questionNumber = document.getElementById("question-number").value;
   var current_config = document.getElementById("load-config-input").value;
   var questionId = document.getElementById("question-id").value;
-
   var currentQuestion = document.getElementById("current-question").value;
   var questionType = document.getElementById("question-type").value;
   var fdbk = [];
@@ -421,96 +416,10 @@ async function saveQuestionForm() {
   loader('OFF');
 
 }
-function loader(state)
-{
-  if(state === 'ON'){
-    document.getElementById('loader').style.visibility = 'visible';
-    document.getElementById('main').style.filter="blur(3px)";
-  }
-  else if(state === "OFF")
-  {
-    document.getElementById('loader').style.visibility = 'hidden';
-    document.getElementById('main').style.filter="blur(0px)";
-  }
-}
-
-
-async function getAllquestionsDB()
-{
-  loader('ON');
-  const qa_data = await httpGet(url,"getDataFromsheet","qa-db");//get all sheet data (excluding the header) return: map containting the raws fromt the selected sheet
-  qa_data.forEach((val) =>{
-    if(val.question != ''){
-      document.querySelector('tbody').insertAdjacentHTML("beforeend",`
-        <tr>
-          <td>`+val.question+`</td>
-          <td>`+val.qid+`</td>
-          <td>`+val.type+`</td>
-          <td>
-          <button type="button" class="btn btn-default btn-sm" id="addqconfig" value="`+val.qid+`" title="הוסף לקונפגרציה הנוכחית">
-          <span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td><button type="button" class="btn btn-danger" id="delete-question-db-modal" value="`+val.qid+`">מחק</button>&ensp;</td>
-        </tr>`);
-    }
-    
-  })
-
-  Addqconfig_btns = await document.querySelectorAll("#addqconfig");
-  modal_addqconfig = await document.getElementById("addq-form");
-  await Addqconfig_btns.forEach((b) =>{
-    b.onclick= async function(e) {
-      loader('ON');
-      let curr_config = await document.getElementById("load-config-input").value;
-      if(curr_config == ""){
-        alert("אנא בחר קונפגרציה");
-        modal.style.display = "none";
-        loader('OFF');
-        return;
-      }
-      document.getElementById("addq_modal-qid").value = await e.srcElement.value;
-      modal_addqconfig.style.display = "block";
-      loader('OFF');
-    }
-
-  })
-  await document.querySelectorAll('#delete-question-db-modal').forEach((b) =>{
-    b.onclick = async function(e)
-    {
-      document.getElementById('rmq-appr').value = await b.value;
-      document.getElementById('delq-form').style.display = "block";
-      loader('OFF');
-    }
-    
-  })
-
-  loader('OFF');
-}
 
 
 
-
-// Get the modal
-var modal = document.getElementById("list-q");
-// Get the button that opens the modal
-var btn = document.getElementById("list-question-db");
-// Get the <span> element that closes the modal
-var span = document.getElementById("close-btn");
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-  modal.style.display = "block";
-  getAllquestionsDB();
-}
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-  document.querySelector('tbody').innerHTML = "";
-}
-
-
-var Addqconfig_btn;
-var modal_addqconfig;
-document.getElementById("addq-cancel").onclick = async function(){
+document.getElementById("addq-cancel").onclick = async function(e){
   modal_addqconfig.style.display = "none";
   //reset the addq-form modal inputs
   await document.getElementById("addq-inputs").querySelectorAll("input").forEach((input) => {
@@ -518,6 +427,7 @@ document.getElementById("addq-cancel").onclick = async function(){
   })
   document.getElementById("addq-checkbox-reuse").checked = false;
 }
+
 //add the selected question to the current config
 document.getElementById("addq-add").onclick = async function(e){
   loader("ON");
@@ -549,10 +459,12 @@ document.getElementById("new-question").onclick = async function(e){
     document.getElementById("addnewq").style.display = 'block';
 
 }
+//add new question cancel button
 document.getElementById("addnewq-cancel").onclick = function(e)
 {
   document.getElementById("addnewq").style.display = 'none';
 }
+//if checked will add option to add new question form to add the new question also to current config
 document.getElementById("checkbox-addnewq-currconf").onclick = async function(e){
   let curr_config = await document.getElementById("load-config-input").value;
   if(curr_config == ""){
@@ -563,7 +475,7 @@ document.getElementById("checkbox-addnewq-currconf").onclick = async function(e)
   }
   e.srcElement.checked ? document.getElementById("addnewq-config").style.display = "block":document.getElementById("addnewq-config").style.display = "none";
 }
-
+//saving the new question to the qa-db and also to current config db sheet if save to current config is checked
 document.getElementById("addnewq-add").onclick = async function(e){
   loader("ON");
   let addnewqDBanswers = [];
@@ -634,12 +546,14 @@ document.getElementById('rmq-appr').onclick = async function(e){
   await getAllquestionsDB();
   loader("OFF");
 }
+//delete question qlist modal cancel button
 document.getElementById('rmq-cancel').onclick = async function(e)
 {
   document.getElementById('delq-form').style.display = "none";
 }
 
-//delete question approval modal from outside 
+//delete question approval modal from outside (the main page)
+//delete current question from qa-db and all configs contained this question.
 document.getElementById('rmq-outside-appr').onclick = async function(e){
   loader("ON");
   let qid_outmo = await document.getElementById('question-id').value;
@@ -648,10 +562,12 @@ document.getElementById('rmq-outside-appr').onclick = async function(e){
   await loadSelectedConfig();
   loader("OFF");
 }
+//delete question modal from outside(main page) cancel button
 document.getElementById('rmq-outside-cancel').onclick = async function(e)
 {
   document.getElementById('delq-outside-form').style.display = "none";
 }
+//open modal to approve the current question delete from entrie db
 document.getElementById('delete-question-db').onclick = async function() {
   let configfile = await document.getElementById('question-id').value
   if(configfile === "")
@@ -660,5 +576,108 @@ document.getElementById('delete-question-db').onclick = async function() {
     return;
   }
   document.getElementById('delq-outside-form').style.display = "block";
+
+}
+
+//loading the selected game - will show the game inside the iframe box
+document.getElementById('load-game-btn').onclick = function(e){
+  loader('ON');
+  var game = document.getElementById("load-game-input");
+  if(!games_list.includes(game.value))
+  {
+    alert("המשחק שנבחר לא קיים במאגר");
+    game.value = "";
+    loader('OFF');
+    return;
+  }
+  var iframe = document.getElementById("game-iframe");
+  // iframe.src = data.get(game.value);
+  iframe.src = data.get(game.value);
+  loader('OFF');
+}
+
+//show question form in the main page - by clicking the down arrow
+function toggleQuestionForm() {
+  let element = document.getElementById("question-form");
+  if (element.style.display == "none" || !element.style.display) {
+    element.style.display = "block";
+  } else {
+    element.style.display = "none";
+  }
+}
+
+//save new config button onclick
+document.getElementById('open-new-config-btn').onclick = function(e){
+  document.getElementById("new-config-name").value = "";
+  document.getElementById("addnew-config").style.display = "block";
+}
+//cancel new config creation
+document.getElementById('revert-new-config').onclick = function(e){
+  document.getElementById("addnew-config").style.display = "none";
+}
+
+//save new config button onclick
+document.getElementById('save-new-config').onclick = async function(e){
+  loader('ON');
+  let name = document.getElementById("new-config-name").value;
+  if(name === "")
+  {
+    alert("שם קונפגרציה לא יכול להיות ריק");
+    loader('OFF');
+    return;
+  }
+  configurations = await httpGet(url,"getConfigsName");//get all configs name's return: array
+  if(configurations.includes(name))
+  {
+    alert("שם קונפגרציה קיים במאגר, אנא בחר שם אחר");
+    document.getElementById("addnew-config").style.display = "none";
+    loader('OFF');
+    return;
+  }
+  // create new sheet in database for configuration
+  let add_conf = await httpGet(url,"addConfig",name);//add a new config
+  configurations = await httpGet(url,"getConfigsName");
+  autocomplete(document.getElementById("load-config-input"), configurations);
+  document.getElementById("addnew-config").style.display = "none";
+  loader('OFF');
+}
+
+//show new game creating modal
+document.getElementById('new-game-btn').onclick = function(e){
+  document.getElementById("addnew-game").style.display = "block";
+}
+
+//delete current question from the current selected config
+document.getElementById('delete-question-conf').onclick = async function(e)
+{
+  loader("ON");
+  let q_delete = document.getElementById("question-id").value;
+  let currConf = document.getElementById("load-config-input").value;
+  let delete_fromcf = await httpGet(url,"deleteFromConfig",currConf,q_delete);//delete from config configname,qid to remove
+  loadSelectedConfig();
+}
+
+//empty all fields of question form
+document.getElementById('revert-question').onclick = function(e){
+  document.getElementById("question-number").value = "";
+  document.getElementById("question-id").value = "";
+  document.getElementById("current-question").value = "";
+  document.getElementById("question-type").value = "";
+  // document.getElementById("question-feedback").value = "";
+  document.getElementById("answer-1-checkbox").checked = false;
+  document.getElementById("answer-2-checkbox").checked = false;
+  document.getElementById("answer-3-checkbox").checked = false;
+  document.getElementById("answer-4-checkbox").checked = false;
+  document.getElementById("answer-1").value = "";
+  document.getElementById("answer-2").value = "";
+  document.getElementById("answer-3").value = "";
+  document.getElementById("answer-4").value = "";
+  document.getElementById("current-level").value = "";
+  document.getElementById("current-weight").value = "";
+  document.getElementById("checkbox-reuse").checked = false;
+  document.getElementById("current-skill-path").value = "";
+  document.getElementById("current-skill").value = "";
+  document.getElementById("load-config-input").value = "";
+  toggleQuestionForm();
 
 }

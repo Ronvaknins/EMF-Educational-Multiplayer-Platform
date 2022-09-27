@@ -31,8 +31,8 @@
             <input id="load-game-input" type="text" name="myCountry" placeholder="חפש משחק" />&ensp;
           </div>
        
-          <button type="button" class="btn btn-primary" id="load-game-btn" onclick="loadSelectedGame()">טען משחק</button>&ensp;
-          <button type="button" class="btn btn-primary" id="new-game-btn" onclick="openNewGame()">הוסף משחק</button>
+          <button type="button" class="btn btn-primary" id="load-game-btn">טען משחק</button>&ensp;
+          <button type="button" class="btn btn-primary" id="new-game-btn">הוסף משחק</button>
           </p>
         </form>
       </div>
@@ -50,7 +50,7 @@
             <input type="text" placeholder="חפש קונפיגורציה" id="load-config-input" onkeyup="" />
           </div>
           <button type="button" class="btn btn-primary" id="load-config-btn" onclick="loadSelectedConfig()">טען קונפיגורציה</button>
-          <button type="button" class="btn btn-primary" id="save-config-btn" onclick="openNewConfig()">הוסף קונפיגורציה</button>
+          <button type="button" class="btn btn-primary" id="open-new-config-btn">הוסף קונפיגורציה</button>
         </form>
       </div>
 
@@ -181,9 +181,9 @@
         </div>
         <p>
         <div class="row">
-          <button type="button" class="btn btn-primary" id="delete-question-conf" onclick="deleteQuestionConf()">מחק מקונפיגורציה</button>&ensp;
-          <button type="button" class="btn btn-primary" id="revert-question" onclick="newQuestionForm()">בטל</button>&ensp;
-          <button type="button" class="btn btn-primary" id="save-question-conf" onclick="saveQuestionForm()">שמור</button>&ensp;
+          <button type="button" class="btn btn-primary" id="delete-question-conf">מחק מקונפיגורציה</button>&ensp;
+          <button type="button" class="btn btn-primary" id="revert-question">בטל</button>&ensp;
+          <button type="button" class="btn btn-primary" id="save-question-conf">שמור</button>&ensp;
         </div>
         </p>
         <div class="row">
@@ -220,8 +220,8 @@
                         </div>
                       </p>
                         <div class="row">
-                          <button type="button" class="btn btn-primary" id="revert-new-config" onclick="closeNewConfig()">בטל</button>
-                          <button type="button" class="btn btn-primary" id="save-new-config" onclick="saveNewConfig()">שמור קונפיגורציה</button>
+                          <button type="button" class="btn btn-primary" id="revert-new-config">בטל</button>
+                          <button type="button" class="btn btn-primary" id="save-new-config">שמור קונפיגורציה</button>
                         </div>
                       </div>
                      
