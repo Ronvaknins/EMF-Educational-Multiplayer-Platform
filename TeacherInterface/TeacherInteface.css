@@ -38,12 +38,11 @@
 body {
   height: 100%;
   width: 100%;
-  background: radial-gradient(white, rgb(198, 198, 198));
-}
-/* .row {
+  /* font-weight: 100; */
+  background: radial-gradient(#ffffff 30px,#3b4e57);
 
-  display: flex;
-} */
+}
+
 
 #row-iframe {
   width: 600px;

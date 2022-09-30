@@ -612,7 +612,7 @@ document.getElementById('delete-question-db').onclick = async function() {
 }
 
 //loading the selected game - will show the game inside the iframe box
-document.getElementById('load-game-btn').onclick = function(e){
+document.getElementById('load-game-btn').onclick = async function(e){
   loader('ON');
   var game = document.getElementById("load-game-input");
   if(!games_list.includes(game.value))
@@ -623,8 +623,32 @@ document.getElementById('load-game-btn').onclick = function(e){
     return;
   }
   var iframe = document.getElementById("game-iframe");
-  // iframe.src = data.get(game.value);
   iframe.src = data.get(game.value);
+  // let cid = parent.scormplayerdata.courseid;
+  let def_config = await httpGet(url,'getDefaultConfig',22087,game.value);
+  document.getElementById('default-config').value = def_config;
+  await autocomplete(document.getElementById('default-config'),configurations);
+  document.getElementById('default-config-options').style.display = 'block';
+  loader('OFF');
+}
+
+//save default config to course-defconfig
+document.getElementById('save-default-config').onclick = async function(e){
+  loader('ON');
+  let newdefconfig = document.getElementById('default-config').value;
+  if(!configurations.includes(newdefconfig))
+  {
+    alert("הקונפגרציה לא קיימת במאגר, אנא בחר שם אחר");
+    loader('OFF');
+    return;
+  }
+  // let cid = parent.scormplayerdata.courseid;
+  let cid = 22087;
+  if(cid == ""){alert('מזהה קורס לא נמצא!');loader('OFF');return};
+  let game_name = document.getElementById("load-game-input").value;
+  if(game_name == ""){alert("יש לטעון משחק!");loader('OFF');return}
+  let queryS = cid+';'+game_name+';'+newdefconfig;
+  let setDefconfig = await httpGet(url,'setDefaultConfig',queryS)
   loader('OFF');
 }
 

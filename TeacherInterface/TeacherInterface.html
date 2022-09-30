@@ -16,7 +16,19 @@
   </head>
   <!-- Body -->
   <body>
+
+
     <div class="loader" id="loader"></div>
+    <div class='light x1'></div>
+    <div class='light x2'></div>
+    <div class='light x3'></div>
+    <div class='light x4'></div>
+    <div class='light x5'></div>
+    <div class='light x6'></div>
+    <div class='light x7'></div>
+    <div class='light x8'></div>
+    <div class='light x9'></div>
+    <div class="background-image"></div>
     <!-- Main Container -->
     <div class="container" id="container">
       <div class="h-100 d-flex align-items-center justify-content-center" id="main">
@@ -26,17 +38,29 @@
       <!-- Game Options -->
       <div class="row" >
         <p>
-        <form autocomplete="off">
-          <div class="autocomplete" style="width: 200px">
-            <input id="load-game-input" type="text" name="myCountry" placeholder="חפש משחק" />&ensp;
+        <form autocomplete="off" id="game-loading-form">
+          <div class="autocomplete">
+            שם המשחק:&ensp;
+            <input id="load-game-input" type="text" name="searchq" placeholder="חפש משחק" />&ensp;
           </div>
-       
+         
           <button type="button" class="btn btn-primary" id="load-game-btn">טען משחק</button>&ensp;
           <button type="button" class="btn btn-primary" id="new-game-btn">הוסף משחק</button>
           </p>
         </form>
       </div>
-
+      <div class="row" id="default-config-options" style="display: none">
+        <p>
+          <form autocomplete="off">
+            <div class="autocomplete">
+             קונפגרציה ברירת מחדל:&ensp;
+              <input id="default-config" type="text" name="searchq" placeholder="קונפגרציה ברירת מחדל" />&ensp;
+            </div>
+      
+        <button type="button" class="btn btn-primary" id="save-default-config">שמור קונפגרציה ברירת מחדל</button>&ensp;
+      </p>
+    </form>
+      </div>
 
 
       <!-- Game Iframe -->
