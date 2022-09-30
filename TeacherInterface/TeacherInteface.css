@@ -1,7 +1,7 @@
 
 
 .loader {
-  z-index: 10;
+  z-index: 9999999999999;
   margin: auto;
   position:absolute;
   outline: 5px black; 

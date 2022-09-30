@@ -69,7 +69,7 @@ async function httpGet(surl,p1,p2,p3) {
   return req;
 }
 
-var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY3GajaWNOH3IifV7AC95-EXkmSo1ObW4YINsWqg/exec";
+var url = "https://script.google.com/macros/s/AKfycbyH1nxVtvqc_tmss5H5sIMEuGF2Eqh1toNLSkxZ2Eo6tcNH94EJ40ICZq5ihln68oWXxQ/exec";
 
 async function pull_games(){
   loader("ON");

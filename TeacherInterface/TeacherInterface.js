@@ -8,7 +8,7 @@ var Addqconfig_btn;
 var modal_addqconfig;
 var QTYPES = ["בחירה יחידה","בחירה מרובה"];
 //db url - google-sheet
-var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY3GajaWNOH3IifV7AC95-EXkmSo1ObW4YINsWqg/exec";
+var url = "https://script.google.com/macros/s/AKfycbyH1nxVtvqc_tmss5H5sIMEuGF2Eqh1toNLSkxZ2Eo6tcNH94EJ40ICZq5ihln68oWXxQ/exec";
 
 
 
@@ -170,7 +170,7 @@ async function loadSelectedConfig() {
 
   // get all data of the configuration tab in the database and parse it.
   const game_data = await httpGet(url,"getDataFromsheet",config);//get all sheet data (excluding the header) return: map containting the raws fromt the selected sheet
-  console.log(game_data);
+  // console.log(game_data);
   const qa_data = await httpGet(url,"getDataFromsheet","qa-db");//get all sheet data (excluding the header) return: map containting the raws fromt the selected sheet
   var k=0
   for (let i = 0; i < game_data.length; i++) {
@@ -463,10 +463,10 @@ document.getElementById("addq-add").onclick = async function(e){
     
   })
   document.getElementById("addq-checkbox-reuse").checked = false;
-  console.log(queryString_addqconf.toString());
+  // console.log(queryString_addqconf.toString());
   //adding question from qa db to current config
   let add_qcon = await httpGet(url,"addQuestion_config",document.getElementById("load-config-input").value,queryString_addqconf.toString());//add question to a config from DB gets:configname,array
-  console.log(add_qcon);
+  // console.log(add_qcon);
   modal_addqconfig.style.display = "none";
   await loadSelectedConfig();
   loader("OFF");
@@ -642,6 +642,7 @@ document.getElementById('save-default-config').onclick = async function(e){
     loader('OFF');
     return;
   }
+  if(newdefconfig == ""){alert('שם קונפגרציה ברירת מחדל אינה יכולה להיות ריקה');loader('OFF');return;}
   // let cid = parent.scormplayerdata.courseid;
   let cid = 22087;
   if(cid == ""){alert('מזהה קורס לא נמצא!');loader('OFF');return};
