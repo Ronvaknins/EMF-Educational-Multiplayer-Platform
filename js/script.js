@@ -21,38 +21,41 @@ function makeMenu() {
 
 
 var netsblox;
-async function startGame(url){
-  loader("ON");
-  let group = await prompt("Select Group: ");
-  if(group === "" || group === null){alert("PLEASE SELECT VALID GROUP!! try again");return;}
+async function startGame(url_game,game_n){
 
-  let uname = "asd"
-  let gstart = document.getElementById('game-start');
-  document.getElementById('games').style.display = 'none';
-
-  var full_url = url+group+"&setVariable=username%3D"+uname+"&embedMode";
-  gstart.style.display = 'block';
-  gstart.insertAdjacentHTML('afterbegin',`
-  <iframe id="netsblox"
-  allowfullscreen= "allowfullscreen"  
-  allow="geolocation; microphone; camera"
-  src=`+full_url+` 
-  frameboarder="0"
-  style="width :100%; height:90%; ;position:absolute;">
-  </iframe>
-  `
-  );
-  loader("ON");
-  const container = document.getElementById('netsblox');
-  netsblox = new EmbeddedNetsBloxAPI(container);
-  console.log('Now, you can interact with netsblox using:', netsblox);
-  console.log('Please open the project found in this directory to see an example project.');
-  netsblox.addEventListener('setScore', event => {
-    console.log(event.detail);
-    scorm.set("cmi.score.raw",parseInt(event.detail, 10));
-    scorm.save();
-  });
-  loader("OFF");
+    loader("ON");
+    let group = await prompt("Select Group: ");
+    if(group === "" || group === null){alert("נא לבחור קבוצה!");return;}
+    console.log(group);
+    // let cid = parent.scormplayerdata.courseid;
+    // console.log(cid);
+    let def_config = await httpGet(url,'getDefaultConfig','22087',game_n);
+    let uname = "asd"
+    let gstart = document.getElementById('game-start');
+    document.getElementById('games').style.display = 'none';
+    var full_url = url_game+"&setVariable=group%3D"+group+"&setVariable=config_name%3D"+def_config+"&embedMode";
+    console.log(full_url);
+    gstart.style.display = 'block';
+    await gstart.insertAdjacentHTML('afterbegin',`
+    <iframe id="netsblox"
+    allowfullscreen= "allowfullscreen"  
+    allow="geolocation; microphone; camera"
+    src=`+full_url+` 
+    frameboarder="0"
+    style="width :100%; height:90%; ;position:absolute;">
+    </iframe>
+    `
+    );
+    const container = document.getElementById('netsblox');
+    netsblox = await new EmbeddedNetsBloxAPI(container);
+    console.log('Now, you can interact with netsblox using:', netsblox);
+    console.log('Please open the project found in this directory to see an example project.');
+    netsblox.addEventListener('setScore', event => {
+      console.log(event.detail);
+      scorm.set("cmi.score.raw",parseInt(event.detail, 10));
+      scorm.save();
+    });
+    loader("OFF");
 }
 let scorm = pipwerks.SCORM;
 
@@ -71,7 +74,7 @@ var url = "https://script.google.com/macros/s/AKfycbzBqXy9G1FOEJ57uo8XZXM89WPvmY
 async function pull_games(){
   loader("ON");
     let games = await httpGet(url,'getDataFromsheet','games-db');
-    console.log(games);
+    //console.log(games);
     var games_div = document.getElementById("games");
     var end_row = false;
     var innerhtml = "";
@@ -91,7 +94,7 @@ async function pull_games(){
       }
       innerhtml +=`
       <div class="col">
-          <a class="tileLink" href="#" onclick="startGame('`+element.url+`')">
+          <a class="tileLink" href="#" onclick="startGame('`+element.url+`','`+element.game_name+`')">
           <article class="tile">
               <figure>
                 <img src=`+element.img_url+` />
