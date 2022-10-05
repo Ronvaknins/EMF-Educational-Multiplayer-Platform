@@ -623,12 +623,14 @@ document.getElementById('load-game-btn').onclick = async function(e){
     return;
   }
   var iframe = document.getElementById("game-iframe");
-  iframe.src = data.get(game.value);
-  // let cid = parent.scormplayerdata.courseid;
-  let def_config = await httpGet(url,'getDefaultConfig',22087,game.value);
+ 
+  let cid = parent.scormplayerdata.courseid;
+  // let cid = 22087;
+  let def_config = await httpGet(url,'getDefaultConfig',cid,game.value);
   document.getElementById('default-config').value = def_config;
   await autocomplete(document.getElementById('default-config'),configurations);
   document.getElementById('default-config-options').style.display = 'block';
+  iframe.src = data.get(game.value)+"&setVariable=addressVariable%3D"+"admins"+";"+def_config;
   loader('OFF');
 }
 
@@ -643,8 +645,8 @@ document.getElementById('save-default-config').onclick = async function(e){
     return;
   }
   if(newdefconfig == ""){alert('שם קונפגרציה ברירת מחדל אינה יכולה להיות ריקה');loader('OFF');return;}
-  // let cid = parent.scormplayerdata.courseid;
-  let cid = 22087;
+  let cid = parent.scormplayerdata.courseid;
+  // let cid = 22087;
   if(cid == ""){alert('מזהה קורס לא נמצא!');loader('OFF');return};
   let game_name = document.getElementById("load-game-input").value;
   if(game_name == ""){alert("יש לטעון משחק!");loader('OFF');return}

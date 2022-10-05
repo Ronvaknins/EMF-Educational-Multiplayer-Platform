@@ -27,13 +27,12 @@ async function startGame(url_game,game_n){
     let group = await prompt("Select Group: ");
     if(group === "" || group === null){alert("נא לבחור קבוצה!");return;}
     console.log(group);
-    // let cid = parent.scormplayerdata.courseid;
-    // console.log(cid);
-    let def_config = await httpGet(url,'getDefaultConfig','22087',game_n);
-    let uname = "asd"
+    let cid = parent.scormplayerdata.courseid;
+    let def_config = await httpGet(url,'getDefaultConfig',cid,game_n);
+    // let uname = "asd"
     let gstart = document.getElementById('game-start');
     document.getElementById('games').style.display = 'none';
-    var full_url = url_game+"&setVariable=group%3D"+group+"&setVariable=config_name%3D"+def_config+"&embedMode";
+    var full_url = url_game+"&setVariable=addressVariable%3D"+group+";"+def_config+"&embedMode";
     console.log(full_url);
     gstart.style.display = 'block';
     await gstart.insertAdjacentHTML('afterbegin',`
