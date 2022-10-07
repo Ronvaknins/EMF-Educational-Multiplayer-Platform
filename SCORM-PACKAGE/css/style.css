@@ -511,7 +511,7 @@ a.tileLink:focus {
 }
 .brand:before {
   
-  background-size: 100% 100%;
+  background-size: 80% 80%;
   content: "EMP";
   line-height: 205px;
   color: #e1e4e3;
