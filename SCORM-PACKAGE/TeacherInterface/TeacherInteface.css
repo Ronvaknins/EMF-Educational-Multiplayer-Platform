@@ -28,6 +28,7 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/css/bootstrap.min.css');
 
 .container {
+  zoom: 0.8;
   height: 100%;
   margin-top: 2%;
   display: flex;
