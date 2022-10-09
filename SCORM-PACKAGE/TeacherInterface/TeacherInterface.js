@@ -450,10 +450,11 @@ document.getElementById('save-question-conf').onclick = async function(e) {
   var checkboxReuse = document.getElementById("checkbox-reuse").checked ? true : false;
   var currentSkillPath = document.getElementById("current-skill-path").value;
   var currentSkill = document.getElementById("current-skill").value;
+  var currentOrd = document.getElementById("current-order").value;
   var queryString = ``+
   questionId+`;`
   +currentLevel+`,`
-  +questionNumber+`,`
+  +currentOrd+`,`
   +currentWeight+','
   +checkboxReuse+','
   +currentSkillPath+','
@@ -530,7 +531,7 @@ document.getElementById("checkbox-addnewq-currconf").onclick = async function(e)
 //saving the new question to the qa-db and also to current config db sheet if save to current config is checked
 document.getElementById("addnewq-add").onclick = async function(e){
   loader("ON");
-    let addnewqDBanswers = [];
+  let addnewqDBanswers = [];
   let addnewqDBcorrect = [];
   let addnewqDBfdbk = [];
   let cntDBcorrect = 0;
@@ -539,9 +540,11 @@ document.getElementById("addnewq-add").onclick = async function(e){
     addnewqDBcorrect.push(input.checked);
     input.checked ? cntDBcorrect++ : cntDBcorrect = cntDBcorrect;
   })
-
-  if(!validateNewQuestionInputs(cntDBcorrect)){ loader("OFF"); return; }
-  
+  const isValidnq = await validateNewQuestionInputs(cntDBcorrect);
+  if(!isValidnq){
+    loader("OFF"); 
+    return;
+  }
   await document.getElementById("addnewqDB-answers").querySelectorAll("input").forEach((input) => { 
     if(input.type == "checkbox"){
       input.checked = false;
@@ -565,7 +568,6 @@ document.getElementById("addnewq-add").onclick = async function(e){
   +question_type+`;`
   +addnewqDBfdbk.toString();
   var newq_qid = await httpGet(url,"addQuestion_qaDB",queryString_addnewqDB);//array converted to string seprated with comma
-
   if(document.getElementById("checkbox-addnewq-currconf").checked)
   {
     var queryString_addnewqconf = [];
@@ -578,12 +580,9 @@ document.getElementById("addnewq-add").onclick = async function(e){
       else{
         queryString_addnewqconf.push(input.value);
         input.value = "";
-      }
-      
+      }     
     })
     document.getElementById("addnewq-checkbox-reuse").checked = false;
-  
-   
     //adding question from qa db to current config
     let add_qcon = await httpGet(url,"addQuestion_config",document.getElementById("load-config-input").value,queryString_addnewqconf.toString());//add question to a config from DB gets:configname,array
     await loadSelectedConfig();
