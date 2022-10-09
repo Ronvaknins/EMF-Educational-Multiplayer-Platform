@@ -1,5 +1,5 @@
 # EMP - Educational Multiplayer Platform
-EMF - Educational Multiplayer Platform
+EMP - Educational Multiplayer Platform
 
 
 
