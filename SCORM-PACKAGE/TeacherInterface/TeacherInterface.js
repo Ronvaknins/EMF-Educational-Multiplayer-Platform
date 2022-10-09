@@ -2,7 +2,7 @@
 
 //global variables
 var data = new Map();
-var qids,questions,answers,qtype,qlevel,correct_answers,qweight,qpath,qpath,qskill,qresused,allquestions,configurations,fdbk_qadb;
+var qids,questions,answers,qtype,qlevel,correct_answers,qweight,qorder,qpath,qskill,qresused,allquestions,configurations,fdbk_qadb;
 var games_list;
 var Addqconfig_btn;
 var modal_addqconfig;
@@ -161,6 +161,7 @@ async function loadSelectedConfig() {
   questions = [];//questions
   answers = [];//answers
   qtype = [];//questions type
+  qorder = [];//questions order
   qlevel = [] // questions level
   correct_answers = [];
   qweight = []//questions weight
@@ -180,6 +181,7 @@ async function loadSelectedConfig() {
       qresused.push(game_data[i].reused);
       qpath.push(game_data[i].path);
       qskill.push(game_data[i].skill);
+      qorder.push(game_data[i].order);
       answers.push([]); 
       fdbk_qadb.push([]); 
       correct_answers.push([]); 
@@ -219,6 +221,7 @@ function fillQuestionForm(index){
   document.getElementById("current-question").value = questions[index];
   document.getElementById('question-type').value = qtype[index];
   document.getElementById('current-level').value = qlevel[index];
+  document.getElementById('current-order').value = qorder[index];
   document.getElementById('current-weight').value = qweight[index];
   document.getElementById('current-skill').value = qskill[index];
   document.getElementById('current-skill-path').value = qpath[index];
@@ -331,6 +334,52 @@ function loader(state)
   }
 }
 
+// validates user inputs before saving new question
+async function validateNewQuestionInputs(cntDBcorrect){
+  let inputFlag = false;
+  await document.getElementById("addnewqDB-answers").querySelectorAll('input[type="text"]').forEach((input) => { 
+    if(input.value == "") { inputFlag = true; }
+  })
+  if (document.getElementById("addnewq-question").value == "" || document.getElementById("addnewq-type").value == "" || inputFlag){ 
+    alert("כל השדות חייבים להיות מלאים"); return false; }
+  if(!QTYPES.includes(document.getElementById("addnewq-type").value)){ alert("סוג השאלה חייב להיות 'בחירה יחידה' או 'בחירה מרובה'"); return false; }
+  if(cntDBcorrect == 0){alert("נא לסמן לפחות תשובה אחת נכונה");return false;}
+  if (document.getElementById("addnewq-type").value == QTYPES[0] && cntDBcorrect != 1) {
+    alert("בשאלות מסוג בחירה יחידה ניתן לסמן תשובה אחת בלבד");
+    return false;
+  }
+  if(!document.getElementById("checkbox-addnewq-currconf").checked) { return true; }
+  let newqlevel = Number(document.getElementById("addnewq-level").value);
+  let newqweight = Number(document.getElementById("addnewq-level").value);
+  let newqorder = Number(document.getElementById("addnewq-level").value);
+  if (!(Number.isInteger(newqlevel) && Number.isInteger(newqweight) && Number.isInteger(newqorder) &&
+      newqlevel > 0 && newqweight > 0 && newqorder > 0)) {
+        alert("שלב, משקל וסדר חייבים להיות מספרים שלמים וחיובים")
+        return false;
+  }
+  return true;
+}
+
+// validates user inputs before saving existing question
+async function validateQuestionInputs(){
+  let inputFlag = false;
+  let cntCorrect = 0;
+  await document.getElementById("question-form-inputs").querySelectorAll('input[type="text"]').forEach((input) => { 
+    if(input.value == "") { inputFlag = true; }
+  })
+  await document.getElementById("question-form-inputs").querySelectorAll('input[type="checkbox"]').forEach((checkbox) => { 
+    if(checkbox.checked) { cntCorrect++; }
+  })
+  if(inputFlag){ alert("כל השדות חייבים להיות מלאים"); return false; }
+  if(!QTYPES.includes(document.getElementById("question-type").value)){ alert("סוג השאלה חייב להיות 'בחירה יחידה' או 'בחירה מרובה'"); return false; }
+  if(cntCorrect === 0) { alert("נא לסמן לפחות תשובה אחת נכונה"); return false; }
+  if (document.getElementById("question-type").value == QTYPES[0] && cntCorrect != 1) {
+    alert("בשאלות מסוג בחירה יחידה ניתן לסמן תשובה אחת בלבד");
+    return false;
+  }
+  return true;
+}
+
 
 // **** buttons onclick function: ****
 
@@ -372,25 +421,10 @@ document.getElementById("close-btn").onclick = function() {
   document.querySelector('tbody').innerHTML = "";
 }
 
-//wirte the changes to all db - add it to the current config and qa-db sheet
+//write the changes to all db - add it to the current config and qa-db sheet
 document.getElementById('save-question-conf').onclick = async function(e) {
   loader('ON');
-  let inputFlag = false;
-  let cntCorrect = 0;
-  await document.getElementById("question-form-inputs").querySelectorAll('input[type="text"]').forEach((input) => { 
-    if(input.value == "") { inputFlag = true; }
-  })
-  await document.getElementById("question-form-inputs").querySelectorAll('input[type="checkbox"]').forEach((checkbox) => { 
-    if(checkbox.checked) { cntCorrect++; }
-  })
-  if(inputFlag){ alert("כל השדות חייבים להיות מלאים"); loader("OFF"); return; }
-  if(!QTYPES.includes(document.getElementById("question-type").value)){ alert("סוג השאלה חייב להיות 'בחירה יחידה' או 'בחירה מרובה'"); loader("OFF"); return; }
-  if(cntCorrect === 0) { alert("נא לסמן לפחות תשובה אחת נכונה"); loader('OFF'); return; }
-  if (document.getElementById("question-type").value == QTYPES[0] && cntCorrect != 1) {
-    alert("בשאלות מסוג בחירה יחידה ניתן לסמן תשובה אחת בלבד");
-    loader("OFF");
-    return;
-  }
+  if(!validateQuestionInputs()) { loader("OFF"); return; }
   var questionNumber = document.getElementById("question-number").value;
   var current_config = document.getElementById("load-config-input").value;
   var questionId = document.getElementById("question-id").value;
@@ -496,14 +530,7 @@ document.getElementById("checkbox-addnewq-currconf").onclick = async function(e)
 //saving the new question to the qa-db and also to current config db sheet if save to current config is checked
 document.getElementById("addnewq-add").onclick = async function(e){
   loader("ON");
-  let inputFlag = false;
-  await document.getElementById("addnewqDB-answers").querySelectorAll('input[type="text"]').forEach((input) => { 
-    if(input.value == "") { inputFlag = true; }
-  })
-  if (document.getElementById("addnewq-question").value == "" || document.getElementById("addnewq-type").value == "" || inputFlag){ 
-    alert("כל השדות חייבים להיות מלאים"); loader("OFF"); return; }
-  if(!QTYPES.includes(document.getElementById("addnewq-type").value)){ alert("סוג השאלה חייב להיות 'בחירה יחידה' או 'בחירה מרובה'"); loader("OFF"); return; }
-  let addnewqDBanswers = [];
+    let addnewqDBanswers = [];
   let addnewqDBcorrect = [];
   let addnewqDBfdbk = [];
   let cntDBcorrect = 0;
@@ -512,12 +539,9 @@ document.getElementById("addnewq-add").onclick = async function(e){
     addnewqDBcorrect.push(input.checked);
     input.checked ? cntDBcorrect++ : cntDBcorrect = cntDBcorrect;
   })
-  if(cntDBcorrect == 0){alert("נא לסמן לפחות תשובה אחת נכונה");loader("OFF");return;}
-  if (document.getElementById("addnewq-type").value == QTYPES[0] && cntDBcorrect != 1) {
-    alert("בשאלות מסוג בחירה יחידה ניתן לסמן תשובה אחת בלבד");
-    loader("OFF");
-    return;
-  }
+
+  if(!validateNewQuestionInputs(cntDBcorrect)){ loader("OFF"); return; }
+  
   await document.getElementById("addnewqDB-answers").querySelectorAll("input").forEach((input) => { 
     if(input.type == "checkbox"){
       input.checked = false;
@@ -740,3 +764,43 @@ document.getElementById('revert-question').onclick = function(e){
   toggleQuestionForm();
 
 }
+
+// Increment level onclick
+document.getElementById('inc-level').onclick = function(e){
+  let elem = document.getElementById('current-level');
+  elem.value = parseInt(elem.value) + 1;
+}
+
+// Decrement level onclick
+document.getElementById('dec-level').onclick = function(e){
+  let elem = document.getElementById('current-level');
+  if(parseInt(elem.value) == 1) { return; }
+  elem.value = parseInt(elem.value) - 1;
+}
+
+// Increment weight onclick
+document.getElementById('inc-weight').onclick = function(e){
+  let elem = document.getElementById('current-weight');
+  elem.value = parseInt(elem.value) + 1;
+}
+
+// Decrement weight onclick
+document.getElementById('dec-weight').onclick = function(e){
+  let elem = document.getElementById('current-weight');
+  if(parseInt(elem.value) == 1) { return; }
+  elem.value = parseInt(elem.value) - 1;
+}
+
+// Increment order onclick
+document.getElementById('inc-order').onclick = function(e){
+  let elem = document.getElementById('current-order');
+  elem.value = parseInt(elem.value) + 1;
+}
+
+// Decrement order onclick
+document.getElementById('dec-order').onclick = function(e){
+  let elem = document.getElementById('current-order');
+  if(parseInt(elem.value) == 1) { return; }
+  elem.value = parseInt(elem.value) - 1;
+}
+

@@ -389,3 +389,7 @@ section{
 .btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
   background-color: #5a7785 !important;
 }
+
+#question-number{
+  font-weight: bold;
+}

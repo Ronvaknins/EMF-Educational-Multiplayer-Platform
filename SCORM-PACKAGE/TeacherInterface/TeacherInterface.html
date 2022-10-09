@@ -109,12 +109,12 @@
             <i class="arrow left"></i>
           </button>
           &ensp;
-          מזהה שאלה: &ensp;
+          <b>מזהה שאלה: </b>&ensp;
           <input type="text" placeholder="" id="question-id" disabled style="width: 10%;"/>
         </div>
 
         <div class="row" id="question-form-inputs">
-  
+        &ensp;
         <p></p>
         <div class="row">
          
@@ -166,17 +166,18 @@
           משוב תשובה 4:&ensp;
            <input type="text" placeholder="משוב תשובה" id="q-fdbk"/>
         </div>
-        <p></p>
+        &ensp;
+        <p><b><u>הגדרות שאלה</u></b></p>
       </div>
         <div class="row">
           שלב:&ensp;
           <input type="text" placeholder="שלב" id="current-level" disabled />
           &ensp;
-          <button type="button" class="btn btn-light" id="dec-level">
+          <button type="button" class="btn btn-light" id="inc-level">
             <i class="arrow up"></i>
           </button>
           &ensp;
-          <button type="button" class="btn btn-light" id="inc-level">
+          <button type="button" class="btn btn-light" id="dec-level">
             <i class="arrow down"></i>
           </button>
           &emsp;
@@ -184,16 +185,28 @@
           משקל:&ensp;
           <input type="text" placeholder="משקל" id="current-weight" disabled />
           &ensp;
-          <button type="button" class="btn btn-light" id="dec-weight">
+          <button type="button" class="btn btn-light" id="inc-weight">
             <i class="arrow up"></i>
           </button>
           &ensp;
-          <button type="button" class="btn btn-light" id="inc-weight">
+          <button type="button" class="btn btn-light" id="dec-weight">
             <i class="arrow down"></i>
           </button>
         </div>
         <p></p>
         <div class="row">
+          סדר:&ensp;
+          <input type="text" placeholder="סדר" id="current-order" disabled />
+          &ensp;
+          <button type="button" class="btn btn-light" id="inc-order">
+            <i class="arrow up"></i>
+          </button>
+          &ensp;
+          <button type="button" class="btn btn-light" id="dec-order">
+            <i class="arrow down"></i>
+          </button>
+          &emsp;
+          &emsp;
           שימוש חוזר: &ensp;   
             <label class="switch">
               <input type="checkbox" id="checkbox-reuse" />
@@ -353,14 +366,14 @@
                       <div id="addnewq-config" style="display: none">
                         <p>
                         שלב: &ensp;
-                        <input type="text" placeholder="בחר שלב" />
+                        <input id="addnewq-level" type="text" placeholder="בחר שלב" />
                         </p>
                         <p>
                           סדר: &ensp;
-                        <input type="text" placeholder="בחר סדר"/>
+                        <input id="addnewq-order" type="text" placeholder="בחר סדר"/>
                         &ensp;
                         משקל: &ensp;
-                        <input type="text" placeholder="בחר משקל"/>
+                        <input id="addnewq-weight" type="text" placeholder="בחר משקל"/>
                     
                         </p>
                         <p>
